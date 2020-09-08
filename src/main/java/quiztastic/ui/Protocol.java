@@ -1,6 +1,7 @@
 package quiztastic.ui;
 
 import quiztastic.app.Quiztastic;
+import quiztastic.core.Category;
 import quiztastic.domain.Game;
 
 import java.io.BufferedReader;
@@ -56,6 +57,10 @@ public class Protocol {
 
     }
 
+    private String printNicely(String str, int width){
+        return String.format("%-" + width  + "s", String.format("%" + (str.length() + (width - str.length()) / 2) + "s", str));
+    }
+
     private void answerQuestion(int categoryNumber, int questionScore) {
 
     }
@@ -63,16 +68,31 @@ public class Protocol {
     private void displayBoard() {
         Game game = quiz.getCurrentGame();
         List<Integer> scores = List.of(100,200,300,400,500);
+        List<String> categories = List.of("A","B","C","D","E","F");
+        int i = 0;
+
+        out.print("|" );
+        for(Category c: game.getCategories()){
+            out.print("\t");
+            String str = categories.get(i) + ": " + c.getName();
+            out.print(printNicely(str,30));
+            i++;
+            out.print("\t|");
+        }
+        out.println();
+
+
         for (int questionNumber = 0; questionNumber < 5; questionNumber++) {
             out.print("|");
             for (int category = 0; category < 6; category++) {
-                out.print("    ");
+                out.print("\t");
                 if (game.isAnswered(category, questionNumber)) {
                     out.print("---");
                 } else {
-                    out.print(scores.get(questionNumber));
+                    //out.print(scores.get(questionNumber));
+                    out.print(printNicely(scores.get(questionNumber).toString(),30));
                 }
-                out.print("    |");
+                out.print("\t|");
             }
             out.println();
         }
