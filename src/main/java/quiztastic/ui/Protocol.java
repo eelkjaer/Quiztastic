@@ -28,13 +28,22 @@ public class Protocol {
         out.print("> ");
         out.flush();
         String word = in.next(); // answer a100 -> answer
+
+        while(word.equals("")){
+            out.println("Invalid command!");
+            in.reset();
+            word = in.next();
+        }
         return word;
     }
 
-    private String fetchAnswer () {
+    private String fetchAnswer () { //TODO: Fix scanner bug
         out.print("? ");
         out.flush();
-        String word = in.next(); // answer a100 -> answer
+
+        in.nextLine(); //Scanner bug
+        String word = in.nextLine();
+
         return word;
     }
 

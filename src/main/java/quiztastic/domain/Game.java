@@ -29,7 +29,7 @@ public class Game {
     public String answerQuestion(int categoryNumber, int questionNumber, String answer) {
         Question q = getQuestion(categoryNumber, questionNumber);
         answerList.add(new Answer(categoryNumber, questionNumber, answer));
-        if (q.getAnswer().equals(answer)) {
+        if (q.getAnswer().equalsIgnoreCase(answer)) {
             return null;
         } else {
             return q.getAnswer();
