@@ -15,15 +15,24 @@ public class Protocol {
     private final Quiztastic quiz;
     private final Scanner in;
     private final PrintWriter out;
+    private final Game game;
 
     public Protocol(Scanner in, PrintWriter out) {
         this.in = in;
         this.out = out;
         this.quiz = Quiztastic.getInstance();
+        this.game = quiz.getCurrentGame();
     }
 
     private String fetchCommand () {
         out.print("> ");
+        out.flush();
+        String word = in.next(); // answer a100 -> answer
+        return word;
+    }
+
+    private String fetchAnswer () {
+        out.print("? ");
         out.flush();
         String word = in.next(); // answer a100 -> answer
         return word;
@@ -35,7 +44,11 @@ public class Protocol {
             switch (cmd) {
                 case "h":
                 case "help":
-                   out.println("There are no help!");
+                   out.println("Your options are: \n" +
+                           "  - [h]elp: ask for help\n" +
+                           "  - [d]raw: draw the board\n" +
+                           "  - [a]nswer A200: get the question for category A, question 200.\n" +
+                           "  - [q]uit: exits the game.");
                    break;
                 case "draw":
                 case "d":
@@ -46,6 +59,7 @@ public class Protocol {
                     String question = in.next();
                     String a = question.substring(0, 1).toLowerCase(); // "A100" -> "a"
                     int questionScore = Integer.parseInt(question.substring(1)); // "A100" -> 100
+                    questionScore = (questionScore/100)-1; //TODO: Quick fix for array of questions (max 5)
                     answerQuestion("abcdef".indexOf(a), questionScore);
                     break;
                 case "stop":
@@ -66,11 +80,18 @@ public class Protocol {
     }
 
     private void answerQuestion(int categoryNumber, int questionScore) {
+        out.println(game.getQuestionText(categoryNumber,questionScore));
+        String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer());
+        if(answer != null){
+            out.println("Incorrect, the correct answer is \"" + answer + "\"");
+        } else {
+            out.println("Correct!");
+        }
 
     }
 
     private void displayBoard() {
-        Game game = quiz.getCurrentGame();
+
         List<Integer> scores = List.of(100,200,300,400,500);
         List<String> categories = List.of("A","B","C","D","E","F");
         int i = 0;
@@ -79,7 +100,7 @@ public class Protocol {
         for(Category c: game.getCategories()){
             out.print("\t");
             String str = categories.get(i) + ": " + c.getName();
-            out.print(printNicely(str,30));
+            out.print(printNicely(str,10));
             i++;
             out.print("\t|");
         }

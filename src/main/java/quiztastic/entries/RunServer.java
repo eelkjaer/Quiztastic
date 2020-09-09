@@ -20,7 +20,7 @@ public class RunServer implements Runnable {
     }
 
     private String timestamp(){
-        return new SimpleDateFormat("HH:MM:ss").format(new Date());
+        return new SimpleDateFormat("HH:mm:ss").format(new Date());
     }
 
     @Override
