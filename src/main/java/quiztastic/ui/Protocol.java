@@ -3,6 +3,7 @@ package quiztastic.ui;
 import quiztastic.app.Quiztastic;
 import quiztastic.core.Category;
 import quiztastic.domain.Game;
+import quiztastic.entries.RunServer;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -46,6 +47,9 @@ public class Protocol {
                     String a = question.substring(0, 1).toLowerCase(); // "A100" -> "a"
                     int questionScore = Integer.parseInt(question.substring(1)); // "A100" -> 100
                     answerQuestion("abcdef".indexOf(a), questionScore);
+                    break;
+                case "stop":
+                    RunServer.keepRunning = false;
                     break;
                 default:
                    out.println("Unknown command! " + cmd);
