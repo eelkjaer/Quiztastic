@@ -2,18 +2,19 @@ package quiztastic.entries;
 
 import quiztastic.ui.Protocol;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 public class RunServer implements Runnable {
 
     private final Socket socket;
     public static volatile boolean keepRunning = true;
+
+    private static ArrayList<String> users = new ArrayList<>();
 
     public RunServer(Socket socket) {
         this.socket = socket;
@@ -56,14 +57,72 @@ public class RunServer implements Runnable {
         final ServerSocket serverSocket = new ServerSocket(port);
         String timestamp = new SimpleDateFormat("HH:MM:ss").format(new Date());
 
+        Map<Integer, Socket> clients = new HashMap<Integer, Socket>();
+        final Scanner scanner = new Scanner(System.in);
+
         while(keepRunning) {
             Socket socket = serverSocket.accept();
             System.out.println(timestamp + " [CONNECTED] " + socket.getInetAddress()
                     + " port " + socket.getPort()
                     + " server port " + socket.getLocalPort());
 
+            clients.put(socket.getPort(), socket);
+            users.add(socket.getInetAddress().toString());
+
             Thread thread = new Thread(new RunServer(socket));
             thread.start();
+
+            while(true){
+
+                System.out.print("\nSend to users: ");
+                String input = scanner.nextLine();
+
+            if(input != null) {
+
+                for (int key : clients.keySet()) {
+                    Socket client = clients.get(key);
+
+                    //Checking to make sure it's a client we want to send to.
+                    if (users.contains(client.getInetAddress().toString())) {
+                        // Sending the response back to the client.
+                        // Note: Ideally you want all these in a try/catch/finally block
+                        OutputStream os = client.getOutputStream();
+                        OutputStreamWriter osw = new OutputStreamWriter(os);
+                        BufferedWriter bw = new BufferedWriter(osw);
+
+                        String asciiMsg = "" +
+                                "  ____   ______   _____  _  __ ______  _____  \n" +
+                                " |  _ \\ |  ____| / ____|| |/ /|  ____||  __ \\ \n" +
+                                " | |_) || |__   | (___  | ' / | |__   | |  | |\n" +
+                                " |  _ < |  __|   \\___ \\ |  <  |  __|  | |  | |\n" +
+                                " | |_) || |____  ____) || . \\ | |____ | |__| |\n" +
+                                " |____/ |______||_____/ |_|\\_\\|______||_____/ \n" +
+                                "                                              \n" +
+                                "                                              ";
+
+                        String inputMsg = "####\t"
+                                +input
+                                +"\t####";
+
+                        String divider = "";
+
+                        for(int i=0;i<inputMsg.length()+6;i++){
+                            divider += "#";
+                        }
+
+                        bw.write("\n\n"
+                                + divider
+                                + "\n## SYSTEM BESKED ###\n"
+                                +divider+"\n"
+                                + inputMsg
+                                +"\n"+divider+"\n> ");
+                        bw.flush();
+                    }
+                }
+            }
+            }
         }
+
+
     }
 }
