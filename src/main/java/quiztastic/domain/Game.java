@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class Game {
     private final Board board;
     private final List<Answer> answerList;
+    private int score = 0;
 
     public Game(Board board, List<Answer> answerList) {
         this.board = board;
@@ -30,10 +31,20 @@ public class Game {
         Question q = getQuestion(categoryNumber, questionNumber);
         answerList.add(new Answer(categoryNumber, questionNumber, answer));
         if (q.getAnswer().equalsIgnoreCase(answer)) {
+            int points = (questionNumber + 1) * 100; //Converts from array index to actual points.
+            setScore(points);
             return null;
         } else {
             return q.getAnswer();
         }
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    private void setScore(int score){
+        this.score += score;
     }
 
     public String getQuestionText(int categoryNumber, int questionNumber) {

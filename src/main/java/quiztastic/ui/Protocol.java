@@ -67,9 +67,14 @@ public class Protocol {
                 case "a":
                     String question = in.next();
                     String a = question.substring(0, 1).toLowerCase(); // "A100" -> "a"
+                    String cats = "abcdef";
                     int questionScore = Integer.parseInt(question.substring(1)); // "A100" -> 100
-                    questionScore = (questionScore/100)-1; //TODO: Quick fix for array of questions (max 5)
-                    answerQuestion("abcdef".indexOf(a), questionScore);
+                    questionScore = (questionScore/100)-1;
+                    if(questionScore < 0 || questionScore > 6) { //TODO: Check category as well.
+                        answerQuestion(cats.indexOf(a), questionScore);
+                    } else {
+                        out.println("Question does not exist. Try picking another one!");
+                    }
                     break;
                 case "stop":
                     RunServer.keepRunning = false;
@@ -95,7 +100,7 @@ public class Protocol {
             if(answer != null){
                 out.println("Incorrect, the correct answer is \"" + answer + "\"");
             } else {
-                out.println("Correct!");
+                out.println("Correct! New score: " + game.getScore());
             }
         } else {
             out.println("You've already tried once!");
