@@ -89,14 +89,17 @@ public class Protocol {
     }
 
     private void answerQuestion(int categoryNumber, int questionScore) {
-        out.println(game.getQuestionText(categoryNumber,questionScore));
-        String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer());
-        if(answer != null){
-            out.println("Incorrect, the correct answer is \"" + answer + "\"");
+        if(!game.isAnswered(categoryNumber, questionScore)){
+            out.println(game.getQuestionText(categoryNumber,questionScore));
+            String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer());
+            if(answer != null){
+                out.println("Incorrect, the correct answer is \"" + answer + "\"");
+            } else {
+                out.println("Correct!");
+            }
         } else {
-            out.println("Correct!");
+            out.println("You've already tried once!");
         }
-
     }
 
     private void displayBoard() {
@@ -123,7 +126,6 @@ public class Protocol {
                 if (game.isAnswered(category, questionNumber)) {
                     out.print("---");
                 } else {
-                    //out.print(scores.get(questionNumber));
                     out.print(printNicely(scores.get(questionNumber).toString(),30));
                 }
                 out.print("\t|");

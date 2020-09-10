@@ -42,15 +42,6 @@ public class RunServer implements Runnable {
         }
     }
 
-    public void closeInstance(){
-        try {
-            keepRunning = false;
-            socket.close();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) throws IOException {
         final int port = 6969;
         final ServerSocket serverSocket = new ServerSocket(port);
