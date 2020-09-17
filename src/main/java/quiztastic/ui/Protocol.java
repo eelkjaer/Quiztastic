@@ -47,17 +47,23 @@ public class Protocol {
         return word;
     }
 
+    private void help(){
+        out.println("Your options are: \n" +
+                "  - [h]elp: ask for help\n" +
+                "  - [d]raw: draw the board\n" +
+                "  - [a]nswer A200: get the question for category A, question 200.\n" +
+                "  - [q]uit: exits the game.");
+    }
+
     public void run () {
+        boolean running = true;
+        help();
         String cmd = fetchCommand();
-        while (!cmd.equals("quit")) {
+        while (running) {
             switch (cmd) {
                 case "h":
                 case "help":
-                   out.println("Your options are: \n" +
-                           "  - [h]elp: ask for help\n" +
-                           "  - [d]raw: draw the board\n" +
-                           "  - [a]nswer A200: get the question for category A, question 200.\n" +
-                           "  - [q]uit: exits the game.");
+                   help();
                    break;
                 case "draw":
                 case "d":
@@ -70,7 +76,7 @@ public class Protocol {
                     String cats = "abcdef";
                     int questionScore = Integer.parseInt(question.substring(1)); // "A100" -> 100
                     questionScore = (questionScore/100)-1;
-                    if(questionScore < 0 || questionScore > 6) { //TODO: Check category as well.
+                    if(questionScore >= 0 && questionScore <= 6) { //TODO: Check category as well.
                         answerQuestion(cats.indexOf(a), questionScore);
                     } else {
                         out.println("Question does not exist. Try picking another one!");
@@ -79,6 +85,10 @@ public class Protocol {
                 case "stop":
                     RunServer.keepRunning = false;
                     break;
+                case "quit":
+                case "q":
+                    running = false;
+                    continue;
                 default:
                    out.println("Unknown command! " + cmd);
             }
@@ -93,7 +103,7 @@ public class Protocol {
         return String.format("%-" + width  + "s", String.format("%" + (str.length() + (width - str.length()) / 2) + "s", str));
     }
 
-    private void answerQuestion(int categoryNumber, int questionScore) {
+    private synchronized void answerQuestion(int categoryNumber, int questionScore) {
         if(!game.isAnswered(categoryNumber, questionScore)){
             out.println(game.getQuestionText(categoryNumber,questionScore));
             String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer());
@@ -107,7 +117,7 @@ public class Protocol {
         }
     }
 
-    private void displayBoard() {
+    private synchronized void displayBoard() {
 
         List<Integer> scores = List.of(100,200,300,400,500);
         List<String> categories = List.of("A","B","C","D","E","F");

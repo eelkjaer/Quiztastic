@@ -24,7 +24,7 @@ public class RunServer implements Runnable {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         try {
             Scanner in = new Scanner(socket.getInputStream());
             PrintWriter out = new PrintWriter(socket.getOutputStream());
