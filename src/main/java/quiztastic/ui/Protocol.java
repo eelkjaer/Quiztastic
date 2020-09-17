@@ -2,13 +2,16 @@ package quiztastic.ui;
 
 import quiztastic.app.Quiztastic;
 import quiztastic.core.Category;
+import quiztastic.core.Spiller;
 import quiztastic.domain.Game;
 import quiztastic.entries.RunServer;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Protocol {
@@ -16,6 +19,7 @@ public class Protocol {
     private final Scanner in;
     private final PrintWriter out;
     private final Game game;
+
 
     public Protocol(Scanner in, PrintWriter out) {
         this.in = in;
@@ -41,7 +45,6 @@ public class Protocol {
         out.print("? ");
         out.flush();
 
-        in.nextLine(); //Scanner bug
         String word = in.nextLine();
 
         return word;
@@ -56,6 +59,10 @@ public class Protocol {
     }
 
     public void run () {
+        out.print("Indtast navn");
+        Spiller player = new Spiller(fetchAnswer());
+        game.addPlayer(player);
+
         boolean running = true;
         help();
         String cmd = fetchCommand();
@@ -64,23 +71,31 @@ public class Protocol {
                 case "h":
                 case "help":
                    help();
+                   in.nextLine();
                    break;
                 case "draw":
                 case "d":
                     displayBoard();
+                    in.nextLine();
                     break;
                 case "answer":
                 case "a":
                     String question = in.next();
                     String a = question.substring(0, 1).toLowerCase(); // "A100" -> "a"
+                    in.nextLine();
                     String cats = "abcdef";
                     int questionScore = Integer.parseInt(question.substring(1)); // "A100" -> 100
                     questionScore = (questionScore/100)-1;
                     if(questionScore >= 0 && questionScore <= 6) { //TODO: Check category as well.
-                        answerQuestion(cats.indexOf(a), questionScore);
+                        answerQuestion(cats.indexOf(a), questionScore, player);
                     } else {
                         out.println("Question does not exist. Try picking another one!");
                     }
+                    break;
+                case "score":
+                    var scores = game.getScores();
+                    out.println(scores);
+                    in.nextLine();
                     break;
                 case "stop":
                     RunServer.keepRunning = false;
@@ -92,7 +107,6 @@ public class Protocol {
                 default:
                    out.println("Unknown command! " + cmd);
             }
-            in.nextLine();
             out.flush();
             cmd = fetchCommand();
         }
@@ -103,10 +117,12 @@ public class Protocol {
         return String.format("%-" + width  + "s", String.format("%" + (str.length() + (width - str.length()) / 2) + "s", str));
     }
 
-    private synchronized void answerQuestion(int categoryNumber, int questionScore) {
+
+
+    private synchronized void answerQuestion(int categoryNumber, int questionScore, Spiller player) {
         if(!game.isAnswered(categoryNumber, questionScore)){
             out.println(game.getQuestionText(categoryNumber,questionScore));
-            String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer());
+            String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer(), player);
             if(answer != null){
                 out.println("Incorrect, the correct answer is \"" + answer + "\"");
             } else {
@@ -127,7 +143,7 @@ public class Protocol {
         for(Category c: game.getCategories()){
             out.print("\t");
             String str = categories.get(i) + ": " + c.getName();
-            out.print(printNicely(str,10));
+            out.print(printNicely(str,30));
             i++;
             out.print("\t|");
         }
@@ -139,7 +155,7 @@ public class Protocol {
             for (int category = 0; category < 6; category++) {
                 out.print("\t");
                 if (game.isAnswered(category, questionNumber)) {
-                    out.print("---");
+                    out.print(printNicely("---",30));
                 } else {
                     out.print(printNicely(scores.get(questionNumber).toString(),30));
                 }
