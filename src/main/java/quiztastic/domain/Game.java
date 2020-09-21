@@ -3,7 +3,7 @@ package quiztastic.domain;
 import quiztastic.core.Board;
 import quiztastic.core.Category;
 import quiztastic.core.Question;
-import quiztastic.core.Spiller;
+import quiztastic.core.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class Game {
     private final Board board;
     private final List<Answer> answerList;
     private int score = 0;
-    private final List<Spiller> players;
+    private final List<Player> players;
 
     public Game(Board board, List<Answer> answerList) {
         this.board = board;
@@ -31,7 +31,7 @@ public class Game {
         return list;
     }
 
-    public String answerQuestion(int categoryNumber, int questionNumber, String answer, Spiller player) {
+    public String answerQuestion(int categoryNumber, int questionNumber, String answer, Player player) {
         Question q = getQuestion(categoryNumber, questionNumber);
         var correct = q.getAnswer().equalsIgnoreCase(answer);
         answerList.add(new Answer(categoryNumber, questionNumber, answer, player, correct));
@@ -44,15 +44,24 @@ public class Game {
         }
     }
 
-    public synchronized void addPlayer(Spiller player){
+    public synchronized boolean getPlayers(){
+        return players.isEmpty();
+    }
+
+    public List<Player> getPlayerList(){
+        return this.players;
+    }
+
+
+    public synchronized void addPlayer(Player player){
      players.add(player);
     }
 
-    public synchronized Map<Spiller, Integer> getScores(){
-        Map<Spiller, Integer> scores = new HashMap<>();
+    public synchronized Map<Player, Integer> getScores(){
+        Map<Player, Integer> scores = new HashMap<>();
 
 
-        for(Spiller p: players){
+        for(Player p: players){
             int score = 0;
             for(Answer a: answerList){
                 if(a.player.equals(p) && a.correct){
@@ -94,10 +103,10 @@ public class Game {
         private final int categoryNumber;
         private final int questionNumber;
         private final String answer;
-        private final Spiller player;
+        private final Player player;
         private final boolean correct;
 
-        private Answer(int categoryNumber, int questionNumber, String answer, Spiller player, boolean correct) {
+        private Answer(int categoryNumber, int questionNumber, String answer, Player player, boolean correct) {
             this.categoryNumber = categoryNumber;
             this.questionNumber = questionNumber;
             this.answer = answer;

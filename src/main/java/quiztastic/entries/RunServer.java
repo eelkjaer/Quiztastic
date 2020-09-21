@@ -1,6 +1,7 @@
 package quiztastic.entries;
 
 import quiztastic.ui.Protocol;
+import quiztastic.core.Player;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,7 +30,14 @@ public class RunServer implements Runnable {
             Scanner in = new Scanner(socket.getInputStream());
             PrintWriter out = new PrintWriter(socket.getOutputStream());
 
-            new Protocol(in, out).run();
+            Protocol p = new Protocol(in, out);
+            p.run();
+
+            if(in.next().equals("players")){
+                for(Player pl: p.players()){
+                    out.println(pl);
+                }
+            }
 
             System.out.println(timestamp() + " [DISCONNECTED] " + socket.getInetAddress()
                     + " port " + socket.getPort()

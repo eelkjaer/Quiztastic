@@ -2,7 +2,7 @@ package quiztastic.ui;
 
 import quiztastic.app.Quiztastic;
 import quiztastic.core.Category;
-import quiztastic.core.Spiller;
+import quiztastic.core.Player;
 import quiztastic.domain.Game;
 import quiztastic.entries.RunServer;
 
@@ -50,6 +50,10 @@ public class Protocol {
         return word;
     }
 
+    public List<Player> players(){
+        return game.getPlayerList();
+    }
+
     private void help(){
         out.println("Your options are: \n" +
                 "  - [h]elp: ask for help\n" +
@@ -60,7 +64,7 @@ public class Protocol {
 
     public void run () {
         out.print("Indtast navn");
-        Spiller player = new Spiller(fetchAnswer());
+        Player player = new Player(fetchAnswer(), game.getPlayers());
         game.addPlayer(player);
 
         boolean running = true;
@@ -119,7 +123,7 @@ public class Protocol {
 
 
 
-    private synchronized void answerQuestion(int categoryNumber, int questionScore, Spiller player) {
+    private synchronized void answerQuestion(int categoryNumber, int questionScore, Player player) {
         if(!game.isAnswered(categoryNumber, questionScore)){
             out.println(game.getQuestionText(categoryNumber,questionScore));
             String answer = game.answerQuestion(categoryNumber,questionScore,fetchAnswer(), player);
