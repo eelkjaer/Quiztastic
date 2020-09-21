@@ -6,12 +6,8 @@ import quiztastic.core.Player;
 import quiztastic.domain.Game;
 import quiztastic.entries.RunServer;
 
-import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Protocol {
